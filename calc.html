@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style>
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f3f3f3;
+    font-family: Arial, sans-serif;
+}
+
+.wrapper {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    width: 320px; 
+}
+
+.subarea, .calcarea {
+    width: 100%;
+    text-align: right;
+    border: none;
+    background: none;
+    color: #555;
+    font-family: inherit;
+}
+
+.subarea {
+    height: 30px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.calcarea {
+    height: 60px;
+    font-size: 36px;
+    color: #000;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.button-wrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 10px;
+}
+
+.button-wrapper .button-0 {
+    grid-column: span 2; 
+}
+
+.number {
+    width: 100%;
+    height: 50px;
+    font-size: 18px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    color: #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.number:hover {
+    background-color: #e6e6e6;
+}
+
+.number:active {
+    background-color: #dcdcdc;
+    transform: scale(0.98);
+}
+
+#calculate {
+    background-color: #007BFF;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+}
+
+#calculate:hover {
+    background-color: #0056b3;
+}
+
+#calculate:active {
+    background-color: #004494;
+    transform: scale(0.98);
+}
+
+
+</style>
+<title>Calculator</title>
+</head>
+<body onkeypress="keydown(event)">
+	<div class ="wrapper">
+
+		<div>
+			<input type ="text" class="subarea" id="subarea" readonly >
+		</div>
+
+		<br>
+
+		<div>
+			<input type ="text" class="calcarea" id="calcarea" value = '0' readonly >
+		</div>
+	<br>
+
+		<div class="button-wrapper">
+			<div class="button"><input class="number" type="button" value="C" id="clearcalc" onclick="clearbutton()"></div>
+			<div class="button"><input class="number" type="button" value="+/-" onclick="toggle()"></div>
+			<div class="button"><input class="number" type="button" value="<-" onclick="backspace()"></div>
+			<div class="button"><input class="number" type="button" value="÷" onclick="inputsym('/')"></div>
+
+			<div class="button"><input class="number" type="button" value="7" onclick="inputNumber(7)"></div>
+			<div class="button"><input class="number" type="button" value="8" onclick="inputNumber(8)"></div>
+			<div class="button"><input class="number" type="button" value="9" onclick="inputNumber(9)"></div>
+			<div class="button"><input class="number" type="button" value="×" onclick="inputsym('*')"></div>
+
+			<div class="button"><input class="number" type="button" value="4" onclick="inputNumber(4)"></div>
+			<div class="button"><input class="number" type="button" value="5" onclick="inputNumber(5)"></div>
+			<div class="button"><input class="number" type="button" value="6" onclick="inputNumber(6)"></div>
+			<div class="button"><input class="number" type="button" value="-" onclick="inputsym('-')"></div>
+
+			<div class="button"><input class="number" type="button" value="1" onclick="inputNumber(1)"></div>
+			<div class="button"><input class="number" type="button" value="2" onclick="inputNumber(2)"></div>
+			<div class="button"><input class="number" type="button" value="3" onclick="inputNumber(3)"></div>
+			<div class="button"><input class="number" type="button" value="+" onclick="inputsym('+')"></div>
+
+			<div class="button-0"><input class="number" type="button" value="0" onclick="input0()"></div>
+			<div class="button"><input class="number" type="button" value="." onclick="inputdot()"></div>
+			<div class="button"><input class="number" type="button" value="=" id="calculate" onclick="calculate()"></div>
+		</div>
+	</div>
+</body>
+</html>
+<script>
+
+// 전역 변수 목록
+var completecalc = true;
+var symbolcheck = false;
+var firstzerocheck = true;
+var dot = false;
+var left = 0;
+var right = 0;
+var lastsym = '';
+var input = 0;
+var result = 0;
+var symclac = false;
+var lastkey = null;
+var lastkeyCode = 0;
+var lastinput = 0;
+
+
+// 표기창에 16자 제한 거는 함수
+function calcarealength() {
+	document.getElementById('subarea').value = document.getElementById('subarea').value.substring(0, 16);
+	var val = document.getElementById('calcarea').value.replace(/,/g, "").substring(0, 16);
+	if(dot == false && val >= 0){
+		document.getElementById('calcarea').value = Number(val).toLocaleString('ko-KR', { maximumFractionDigits: 16 });
+	}else{
+		document.getElementById('calcarea').value = val
+	}
+}
+
+// × ÷ 를 * / 로 변환시키는 함수
+function symbolconv(){
+	
+}
+
+
+// 키보드 입력 함수
+function keydown(event){
+	var key = event.key;
+	var keyCode = event.keyCode;
+	var code = event.code;
+    if(key == '0'){
+    	input0();   
+	}else if(key == '1'){
+		inputNumber(1);
+	}else if(key == '2'){
+		inputNumber(2);
+	}else if(key == '3'){
+		inputNumber(3);
+	}else if(key == '4'){
+		inputNumber(4);
+	}else if(key == '5'){
+		inputNumber(5);
+	}else if(key == '6'){
+		inputNumber(6);
+	}else if(key == '7'){
+		inputNumber(7);
+	}else if(key == '8'){
+		inputNumber(8);
+	}else if(key == '9'){
+		inputNumber(9);
+	}else if(keyCode == 92){
+		backspace();
+		lastkeyCode = 92;
+		return;
+	}else if(key == '='){
+		calculate();
+	}else if(key == 'Enter'){
+		calculate();
+	}else if (key == '+'){
+		inputsym('+');
+	}else if (key == '-'){
+		inputsym('-');
+	}else if (key == '*'){
+		inputsym('*');
+	}else if (key == '/'){
+		inputsym('/');
+	}else if(key == '.'){
+		inputdot();
+	}else if(key == ' '){
+		event.preventDefault();
+		if (lastKey != null) {
+			if(lastkeyCode == 92){
+				backspace();
+				return;
+			}else {
+	            processKey(lastKey); 
+				return;
+			}
+		}else{
+	        return;
+		}
+	}
+	else{
+		console.log(key);
+	}
+	lastKey = key;
+	lastkeyCode = 0;
+}
+
+// 재입력 기능 (Spacebar)
+function processKey(key) {
+    if (key == '0') {
+        input0();   
+    } else if (!isNaN(key)) { 
+        inputNumber(Number(key));
+    } else if (key === '=') {
+        calculate();
+    } else if (key === 'Enter') {
+        calculate();
+    } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+        inputsym(key);
+    } else {
+        console.log("입력된 키:", key);
+    }
+}
+
+
+// 0인지 판별하는 상태 변수
+function firstzero(){
+	firstzerocheck = false;
+}
+
+
+// C 버튼 기능 - 초기화
+function clearbutton(){
+	clearsub();
+	clearcalc();
+	symbolcheck = false;
+	firstzerocheck = true;
+	left = 0;
+	right = 0;
+	input = 0;
+	result = 0;
+	lastsym = '';
+	document.getElementById('calcarea').value='0';
+	console.log('클리어 기능 실행');
+}
+
+
+// 계산 에리어 초기화
+function clearcalc(){ 
+	document.getElementById('calcarea').value='';
+	completecalc = false;
+	dot = false;
+}
+
+// 서브 에리어 초기화
+function clearsub(){
+	document.getElementById('subarea').value='';
+}
+
+// 숫자 입력시 부호 입력 상탯값 변경
+function inputnum(){
+	symbolcheck = false;
+}
+
+// 부호 입력시 부호 입력 상탯값 변경
+function inputsymbol(){
+	symbolcheck = true;
+	dot = false;
+}
+
+// 기호 입력 기능
+function inputsym(symbol){
+	
+	if(symbol == '*'){
+		symbol = '×';
+	}
+
+	if(symbol == '/'){
+		symbol = '÷';
+	}
+
+	// 계산이 완료된 상황일 경우
+	if(completecalc == true){
+		left = document.getElementById('calcarea').value.replace(/,/g, "");
+		document.getElementById('subarea').value=left+symbol;
+		inputsymbol();
+		lastsym = symbol;
+		completecalc = false;
+	}
+	// 계산 미완료 상태
+	else{
+		// 기호 미입력 상태일 경우
+		if(symbolcheck == false){
+			// subarea에 값이 없을 때 현재값 + 입력한 기호 를 subarea에 넣는다.
+			if(document.getElementById('subarea').value == ''){
+				var nowvalue = document.getElementById('calcarea').value.replace(/,/g, "");
+				document.getElementById('subarea').value+=nowvalue+symbol;
+				inputsymbol();
+				lastsym = symbol;
+				completecalc = false;
+			}
+			// 계산 기능 호출 후 기호 넣기 ex): 48-35 인 상태에서 + 입력시 : 13+
+			else{
+				symclac = true;
+				lastsym = symbol;
+				calculate();
+				inputsymbol();
+				completecalc = false;
+			}
+		}else if(dot == true && document.getElementById('subarea').value == ''){
+			var nowvalue = document.getElementById('calcarea').value.replace(/,/g, "");
+			// 소수 값이 0일때(0.0000000~) 0으로 치환
+			if(nowvalue == '0' || nowvalue == 0){
+				document.getElementById('subarea').value = '0'+symbol;
+				document.getElementById('calcarea').value = '0';
+ 			}
+			// 0.123456 -> 서브area에 0.123456- 로 넣어주기
+			else{
+				document.getElementById('subarea').value+=nowvalue+symbol;
+			}
+			inputsymbol();
+			lastsym = symbol;
+			dot = false;
+			completecalc = false;
+		}
+		// 부호 스왑
+		else{
+			var tmp = document.getElementById('subarea').value.slice(0, -1);
+			document.getElementById('subarea').value = tmp+symbol;
+			completecalc = false;
+			lastsym = symbol;
+			completecalc = false;
+		}
+	}
+}
+
+// 소숫점 입력 기능
+function inputdot(){	
+	// 이미 소숫점을 입력한 상태일 때 => 입력 무시
+	if(dot == true){
+		return;
+	}
+	var nowvalue = document.getElementById('calcarea').value.replace(/,/g, "");
+	// 계산 완료된 상태일 때 => 0. 
+	if(completecalc == true){
+		clearcalc();
+		document.getElementById('calcarea').value='0.';
+		inputsymbol();
+		firstzerocheck = true;
+		dot = true;
+		return;
+	}
+	// 현재 값이 0일 때
+	if(nowvalue == 0){
+		document.getElementById('calcarea').value='0.';
+		inputsymbol();
+		firstzerocheck = true;
+		dot = true;
+		return;
+	}
+	// 일반적인 경우 +.
+	if(symbolcheck == false){
+		document.getElementById('calcarea').value+='.';
+		firstzerocheck = false;
+		dot = true;
+	}
+}
+
+// 숫자 입력 함수
+function inputNumber(num) {
+
+	// 0 입력은 별도 처리
+	if(num == 0 || num == "0"){
+		input0();	
+		return;
+	}
+
+	// 소숫점 아래 값 입력일 때
+	if(dot == true){
+		document.getElementById('calcarea').value+=num;
+		calcarealength();
+	}
+	// 계산이 완료된 상태일 때
+	else if(completecalc == true){
+		clearsub();
+		clearcalc();
+		document.getElementById('calcarea').value=num;
+		calcarealength();
+		inputnum();
+	}
+	// 첫번째 값이 0일 때
+	else if(firstzerocheck == true){
+		document.getElementById('calcarea').value=num;
+		inputnum();
+		firstzero();
+	}
+	// 마지막으로 기호가 입력된 상태인 경우
+	else if(symbolcheck == true){
+		document.getElementById('calcarea').value=num;
+		inputnum();
+		firstzero();
+	}
+	// 일반적인 경우 + num
+	else{
+		var tmp = document.getElementById('calcarea').value.replace(/,/g, "");
+		tmp +=num;
+		document.getElementById('calcarea').value = Number(tmp).toLocaleString();
+		calcarealength();
+		inputnum();
+		firstzero();
+	}completecalc = false;
+	firstzerocheck = false;
+}
+
+// 0 입력은 별도 관리
+function input0(){
+	// 계산이 완료된 상태일 때 -> 결과 칸 초기화 후 calcarea에 0
+	if(completecalc == true){
+		clearsub();
+		clearcalc();
+		var tmp = document.getElementById('calcarea').value.replace(/,/g, "");
+		tmp +='0';
+		document.getElementById('calcarea').value = Number(tmp).toLocaleString();
+		firstzerocheck = true;
+	}
+	// calcarea 가 비어 있을 때 0 입력
+	else if(document.getElementById('calcarea').value ==''){
+		var tmp = document.getElementById('calcarea').value.replace(/,/g, "");
+		tmp +='0';
+		document.getElementById('calcarea').value = Number(tmp).toLocaleString();
+		firstzerocheck = true;
+	}
+	// 부호가 들어온 상태일 때 0 입력
+	else if(symbolcheck == true && dot == false){
+		document.getElementById('calcarea').value='0'
+		inputnum();
+		firstzero();
+	}
+	else{
+		var nowvalue = document.getElementById('calcarea').value;
+		var last = nowvalue.charAt(nowvalue.length - 1);
+		// 기존 값이 있을 떄 (0이 아닐 때) 뒤에 0 붙임
+		if(firstzerocheck == false){
+			var tmp = document.getElementById('calcarea').value.replace(/,/g, "");
+			tmp +='0';
+			document.getElementById('calcarea').value = Number(tmp).toLocaleString();
+			calcarealength();
+		}
+		// 소숫점 단위 입력 중일때 0 붙여줌
+		else if(dot == true){
+			var tmp = document.getElementById('calcarea').value.replace(/,/g, "");
+			tmp +='0';
+			document.getElementById('calcarea').value = tmp;
+			calcarealength();
+		}
+		// 값이 0일 때는 그대로 0 (00 X)
+		else{
+			return;
+		}
+
+	}completecalc = false;
+
+}
+
+// 토글 기능
+function toggle(){
+	completecalc = false;
+
+	var nowvalue = Number(document.getElementById('calcarea').value.replace(/,/g, ""));
+	// 0일때 입력 무시
+	if(document.getElementById('calcarea').value == 0){
+
+	}else{
+		try{
+			// 0보다 클 때 -1 곱해주기
+			if(nowvalue > 0){
+				nowvalue = nowvalue*-1;
+				document.getElementById('calcarea').value = nowvalue.toLocaleString();
+				console.log("+/- 토글 기능 실행");
+			}
+			// 0보다 작을 때 Math 함수로 절댓값 변환
+			else{
+				nowvalue = Math.abs(nowvalue);
+				document.getElementById('calcarea').value = nowvalue.toLocaleString();
+				console.log("+/- 토글 기능 실행");
+			}
+		}catch{
+			console.log("토글 기능 미수행");
+		}
+	}		
+}
+
+
+// 백스페이스 기능 
+function backspace(){
+	// 계산 완료 상태인 경우 아무 기능도 수행되지 않음
+	if(completecalc == false){	
+		var nowvalue = document.getElementById('calcarea').value.replace(/,/g, "");
+		var deletevalue = nowvalue.charAt(nowvalue.length - 1); 
+		nowvalue = nowvalue.slice(0, -1);
+		var calcareavalue = Number(nowvalue).toLocaleString('ko-KR', {maximumFractionDigits: 12});
+		var last = nowvalue.charAt(nowvalue.length - 1);
+		// 소숫점 판별
+		if(deletevalue == '.'){
+			dot = false;
+			if(nowvalue == '0'){
+				firstzerocheck = true;			
+			}
+			document.getElementById('calcarea').value = calcareavalue;
+		}
+		// 소숫점 앞까지만 지운 경우
+		else if(last == '.'){
+			document.getElementById('calcarea').value = calcareavalue + '.';
+		}
+		// 다 지운 경우
+		else if(nowvalue == ''){
+			document.getElementById('calcarea').value = '';			
+		}
+		// 부호 앞까지만 지운 경우 부호 판별 변수 true 만들어주기
+		else if(isNaN(last) == true){
+			inputsymbol();
+			document.getElementById('calcarea').value = calcareavalue;
+		}
+		// 그 외의 경우 = 숫자 
+		else{
+			inputnum();
+			document.getElementById('calcarea').value = calcareavalue;
+		}
+	}else{
+		document.getElementById('subarea').value = '';
+	}
+	
+	console.log("백스페이스 기능 실행");
+}
+
+// 계산 기능 
+function calculate(){
+
+	right = document.getElementById('calcarea').value.replace(/,/g, "");
+	left = document.getElementById('subarea').value.slice(0,-1);
+	// = 기능 연속 입력 
+	if(completecalc == true){
+		var sum = right+lastsym+lastinput;
+		result = eval(sum.replace(/×/g, '*').replace(/÷/g, '/'));
+		document.getElementById('calcarea').value = result.toLocaleString();
+		document.getElementById('subarea').value = sum + '=';
+		calcarealength();
+		console.log('연속 계산');
+		completecalc = true;
+		firstzerocheck = false;
+		dot = false;
+		symbolcheck = true;
+		
+		return;
+	}
+
+	// = 입력 없이 부호 입력으로 진행되는 계산 -> ex): 19 + 10 *   
+	if(symclac == true){
+		left = document.getElementById('subarea').value.slice(0,-1);
+		var sum = document.getElementById('subarea').value
+		right = document.getElementById('calcarea').value.replace(/,/g, "");
+		var value = sum.concat(right);
+		result = eval(value.replace(/×/g, '*').replace(/÷/g, '/'));
+		document.getElementById('calcarea').value = result.toLocaleString();
+		document.getElementById('subarea').value = result+lastsym;
+		symclac = false;
+		calcarealength();
+		console.log('부호로 계산');
+		completecalc = true;
+		firstzerocheck = false;
+		dot = false;
+		symbolcheck = true;
+		
+		right = lastinput;
+		return;
+	}
+	
+	// -를 빼기(-) 할 떄 
+	if(right<0 && lastsym == '-'){
+		var sum = left+'+';
+		var concat = sum.concat(Math.abs(right));
+		var sub = left + '-' + right;
+		result = eval(concat.replace(/×/g, '*').replace(/÷/g, '/'));
+		document.getElementById('subarea').value = sub + '=';
+		document.getElementById('calcarea').value = result;
+		calcarealength();
+		console.log('-로 빼기');
+		completecalc = true;
+		firstzerocheck = false;
+		dot = false;
+		symbolcheck = true;
+		
+		right = lastinput;
+		return;
+	}
+	
+	// 0을 0으로 나누는 경우
+	if(document.getElementById('subarea').value == "0/" && Number(document.getElementById('calcarea').value) == 0){
+		document.getElementById('calcarea').value = "정의되지 않은 결과입니다.";
+		console.log('0을 0으로 나누기');
+		completecalc = true;
+		firstzerocheck = false;
+		dot = false;
+		symbolcheck = true;
+		
+		return;
+	}
+	// 0으로 나누는 경우
+	if(lastsym == '/' && document.getElementById('calcarea').value == '0'){
+		document.getElementById('calcarea').value = "0으로 나눌 수 없습니다.";
+		console.log('0으로 나누기');
+		completecalc = true;
+		firstzerocheck = false;
+		dot = false;
+		symbolcheck = true;
+		
+		right = lastinput;
+		return;
+	}
+	// 입력한 부호 없이 그냥 = 했을 때 subarea 에 calcarea 값 + = ex): 10 + enter => subarea = "10="
+	if(lastsym == ''){
+		document.getElementById('subarea').value = document.getElementById('calcarea').value.replace(/,/g, "")+"=";
+		calcarealength();
+		console.log('부호 없는 계산 입력');
+		completecalc = true;
+		firstzerocheck = false;
+		dot = false;
+		symbolcheck = true;
+		
+		right = lastinput;
+		return;
+	}
+
+	// 일반적인 계산 기능 실행
+	var sum = left + lastsym + right;
+	result = eval(sum.replace(/×/g, '*').replace(/÷/g, '/'));
+	document.getElementById('subarea').value = sum + '=';
+	document.getElementById('calcarea').value = result;
+	calcarealength();
+	console.log('일반 계산 기능 실행');
+	completecalc = true;
+	firstzerocheck = false;
+	dot = false;
+	symbolcheck = true;
+	
+	lastinput = right;
+}
+
+
+</script>
