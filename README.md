@@ -1,3 +1,7 @@
+
+![Screenshot_3](https://github.com/user-attachments/assets/87466901-1a04-43ed-9b3c-84cf2e8417e7)
+
+
 html로 간단한 사칙연산 계산기를 만들어 보자.
 
  
